@@ -8,13 +8,13 @@ const prisma = new PrismaClient();
 
 app.use(bodyParser.json());
 
-app.use(async (req, res, next) => {
-  req.body.user = await prisma.user.findFirst({
-    where: { id: req.headers.authorization },
-  });
+// app.use(async (req, res, next) => {
+//   req.body.user = await prisma.user.findFirst({
+//     where: { id: req.headers.authorization },
+//   });
 
-  next();
-});
+//   next();
+// });
 
 app.post("/signup", async (req, res) => {
   const { fName, lName, email, password } = req.body;
