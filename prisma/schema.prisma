@@ -4,33 +4,33 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      =  "mysql://dba:w7pcxDu7Tqp2M_Av@DW5gjVFGqKjhqbPNu2kyErdb-kD4@pantheratigris.ddns.net/ss-todo"
-}
-
-model User {
-  id       String @id @unique(map: "id_UNIQUE") @default(uuid())
-  fName    String
-  lName    String
-  email    String @unique(map: "email_UNIQUE")
-  password String
-  TodoList TodoList[]
-}
-
-model TodoList {
-  id      String @id @unique(map: "id_UNIQUE") @default(uuid())
-  name    String
-  desc    String
-  owner   User @relation(fields: [ownerId], references: [id])
-  ownerId String
-  item    TodoItem[]
+  url      = env("DATABASE_URL")
 }
 
 model TodoItem {
-  id          String @id @unique(map: "id_UNIQUE") @default(uuid())
-  name        String
-  desc        String?
-  due         DateTime?
-  createdAt   DateTime @default(now())
-  list        TodoList @relation(fields: [listId], references: [id])
-  listId      String
+  id        String    @id @unique(map: "id_UNIQUE")
+  name      String
+  desc      String?
+  due       DateTime?
+  createdAt DateTime  @default(now())
+  listId    String
+  TodoList  TodoList  @relation(fields: [listId], references: [id])
+}
+
+model TodoList {
+  id       String     @id @unique(map: "id_UNIQUE")
+  name     String
+  desc     String
+  ownerId  String
+  User     User       @relation(fields: [ownerId], references: [id])
+  TodoItem TodoItem[]
+}
+
+model User {
+  id       String     @id @unique(map: "id_UNIQUE")
+  fName    String
+  lName    String
+  email    String     @unique(map: "email_UNIQUE")
+  password String
+  TodoList TodoList[]
 }
