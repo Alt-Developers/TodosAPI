@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -15,6 +16,8 @@ model TodoItem {
   createdAt DateTime  @default(now())
   listId    String
   TodoList  TodoList  @relation(fields: [listId], references: [id])
+
+  @@index([listId], map: "TodoItem_listId_fkey")
 }
 
 model TodoList {
@@ -24,6 +27,8 @@ model TodoList {
   ownerId  String
   User     User       @relation(fields: [ownerId], references: [id])
   TodoItem TodoItem[]
+
+  @@index([ownerId], map: "TodoList_ownerId_fkey")
 }
 
 model User {
