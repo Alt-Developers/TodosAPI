@@ -1,9 +1,8 @@
 import {
+  Body,
   Controller,
   Get,
-  Header,
   Headers,
-  HttpCode,
   HttpException,
   HttpStatus,
   Ip,
@@ -12,24 +11,17 @@ import {
   Req,
 } from "@nestjs/common";
 import { Request } from "express";
+import { authService } from "./auth.service";
+import { LoginDto } from "./dto/login.dto";
 
 @Controller("auth")
 export class AuthController {
-  @Get()
-  async getUser(
-    @Req() req: Request,
-    @Ip() ip: string,
-    @Headers("authorization") auth,
-  ): Promise<object> {
-    const token = req.headers.authorization;
-    Logger.log(`token are: ${token} and ${auth}`);
-    throw new HttpException(
-      "You are forbidden from this endpoint, sorry for the inconvinent",
-      HttpStatus.FORBIDDEN,
-    );
-    return {
-      user: "This is a user",
-    };
+  constructor(private authService: authService) {}
+
+  @Post("login")
+  async getUser(@Body() LoginDto: LoginDto, @Ip() ip: string): Promise<object> {
+    console.log(LoginDto);
+    return this.authService.login(LoginDto, ip);
   }
 
   @Post()
