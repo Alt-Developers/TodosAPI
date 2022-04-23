@@ -15,7 +15,7 @@ model TodoItem {
   due       DateTime?
   createdAt DateTime  @default(now())
   listId    String
-  TodoList  TodoList  @relation(fields: [listId], references: [id])
+  todoList  TodoList  @relation(fields: [listId], references: [id])
 
   @@index([listId], map: "TodoItem_listId_fkey")
 }
@@ -25,17 +25,14 @@ model TodoList {
   name     String
   desc     String
   ownerId  String
-  User     User       @relation(fields: [ownerId], references: [id])
-  TodoItem TodoItem[]
+  owner    User       @relation(fields: [ownerId], references: [id])
+  todoItem TodoItem[]
 
   @@index([ownerId], map: "TodoList_ownerId_fkey")
 }
 
 model User {
   id       String     @id @unique(map: "id_UNIQUE")
-  fName    String
-  lName    String
-  email    String     @unique(map: "email_UNIQUE")
-  password String
-  TodoList TodoList[]
+  ssAccId  String     @unique(map: "ssAccId_UNIQUE")
+  todoList TodoList[]
 }
