@@ -32,7 +32,7 @@ export class AuthController {
     return await this.authService.getUser(token);
   }
 
-  @Get("checkToken")
+  @Get("decodeToken")
   async checkToken(@Headers("Authorization") token) {
     return this.authService.checkToken(token);
   }

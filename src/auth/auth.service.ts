@@ -21,8 +21,9 @@ export class authService {
   async login(body: LoginDto, ip: string): Promise<object> {
     Logger.log(`A Login request for (${body.email}) from (${ip})`);
     console.log({ body });
+
     return {
-      token: this.generateJWT(uuidv4()),
+      token: this.generateJWT("eab9c9e3-fd70-4d23-884c-88a4ca3cf4ed"),
     };
   }
 
@@ -31,12 +32,12 @@ export class authService {
       const decodedToken = jwt.verify(token, process.env.JWT);
       return decodedToken;
     } catch (err) {
-      Logger.error(err.message);
-      switch (err.message) {
-        case "jwt expired":
+      // Logger.error({ ...err });
+      switch (err.name) {
+        case "TokenExpiredError":
           throw new ForbiddenException("token is expried");
           break;
-        case "invalid token":
+        case "JsonWebTokenError":
           throw new BadRequestException("token is invalid");
           break;
         default:
@@ -65,6 +66,7 @@ export class authService {
       })
       .catch((err) => console.log(err));
 
+    console.log(userData);
     const thisUserInSSTodo = await this.prisma.user.findFirst({
       where: { ssAccId: userData._id },
     });
@@ -93,7 +95,7 @@ export class authService {
       process.env.JWT,
       {
         issuer: "https://todo-api.ssdevelopers.xyz",
-        expiresIn: "1s",
+        expiresIn: "1d",
       },
     );
   }

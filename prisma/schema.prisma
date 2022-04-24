@@ -9,7 +9,7 @@ datasource db {
 }
 
 model TodoItem {
-  id        String    @id @unique(map: "id_UNIQUE")
+  id        String    @id @unique(map: "id_UNIQUE") @default(uuid())
   name      String
   desc      String?
   due       DateTime?
@@ -21,9 +21,10 @@ model TodoItem {
 }
 
 model TodoList {
-  id       String     @id @unique(map: "id_UNIQUE")
+  id       String     @id @unique(map: "id_UNIQUE") @default(uuid())
   name     String
   desc     String
+  createdAt DateTime  @default(now())
   ownerId  String
   owner    User       @relation(fields: [ownerId], references: [id])
   todoItem TodoItem[]
@@ -32,7 +33,8 @@ model TodoList {
 }
 
 model User {
-  id       String     @id @unique(map: "id_UNIQUE")
+  id       String     @id @unique(map: "id_UNIQUE") @default(uuid())
   ssAccId  String     @unique(map: "ssAccId_UNIQUE")
+  active   Boolean   @default(true)
   todoList TodoList[]
 }
