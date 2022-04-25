@@ -5,27 +5,20 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from "@nestjs/common";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient, User } from "@prisma/client";
 import { LoginDto } from "./dto/login.dto";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { PrismaService } from "src/services/prisma.service";
+import { UserResponseInterface } from "./auth.interface";
 
 const jwt = require("jsonwebtoken");
 
 @Injectable()
 export class authService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async login(body: LoginDto, ip: string): Promise<object> {
-    Logger.log(`A Login request for (${body.email}) from (${ip})`);
-    console.log({ body });
-
-    return {
-      token: this.generateJWT("eab9c9e3-fd70-4d23-884c-88a4ca3cf4ed"),
-    };
-  }
 
   async checkToken(token: string): Promise<object> {
     try {
@@ -51,6 +44,38 @@ export class authService {
 
   async getUser(token: string): Promise<object> {
     return await this.getUserFromSSAPIs(token);
+  }
+
+  async login(body: LoginDto): Promise<{ token: string }> {
+    console.log(body);
+    let user = await this.ssAuthLogin(body.email, body.pass);
+    console.log(user);
+    if (user.errors) throw new UnauthorizedException("User not found");
+    let thisUser: User;
+    thisUser = await this.prisma.user.findFirst({
+      where: {
+        id: user.userData.ssAccId,
+      },
+    });
+    if (!thisUser) {
+      thisUser = await this.prisma.user.create({
+        data: {
+          ssAccId: user.userData.ssAccId,
+        },
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        uid: thisUser.id,
+        iat: Date.now(),
+      },
+      process.env.JWT,
+      {
+        issuer: "https://todo.apis.ssdevelopers.xyz",
+      },
+    );
+    return token;
   }
 
   private async getUserFromSSAPIs(token: string): Promise<object> {
@@ -81,6 +106,26 @@ export class authService {
     }
 
     return userData;
+  }
+
+  private async ssAuthLogin(
+    email: string,
+    password: string,
+  ): Promise<UserResponseInterface> {
+    let userData: any;
+    let errors: any;
+    await axios
+      .post("http://localhost:8000/auth/login", {
+        email: email,
+        pass: password,
+      })
+      .then(({ data }) => {
+        userData = data;
+      })
+      .catch(({ response }) => {
+        errors = response.data;
+      });
+    return { userData, errors };
   }
 
   generateJWT(uid: string) {

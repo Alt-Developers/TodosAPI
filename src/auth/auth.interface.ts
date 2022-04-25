@@ -6,3 +6,17 @@ export interface User {
   createdAt: Date;
   todoList?: any[];
 }
+
+export interface UserResponseInterface {
+  userData: {
+    ssAccId: string;
+    userInfo: {
+      fName: string;
+      lName: string;
+      color: string;
+      email: string;
+      profile: string;
+    };
+  };
+  errors: any;
+}

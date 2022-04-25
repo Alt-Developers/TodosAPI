@@ -19,12 +19,8 @@ export class AuthController {
   constructor(private authService: authService) {}
 
   @Post("login")
-  async login(
-    @Body() LoginDto: LoginDto,
-    @Ip() ip: string,
-    @Req() req: Request,
-  ): Promise<object> {
-    return this.authService.login(LoginDto, ip);
+  async login(@Body() LoginDto: LoginDto): Promise<object> {
+    return this.authService.login(LoginDto);
   }
 
   @Get("getUser")
@@ -33,7 +29,7 @@ export class AuthController {
   }
 
   @Get("decodeToken")
-  async checkToken(@Headers("Authorization") token) {
+  async checkToken(@Headers("Authorization") token: string) {
     return this.authService.checkToken(token);
   }
 }
